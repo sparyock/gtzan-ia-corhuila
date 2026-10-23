@@ -1,0 +1,19 @@
+# Entornos virtuales
+env/
+venv/
+__pycache__/
+
+# Datasets y archivos de audio pesados
+dataset/*.wav
+dataset/*.mp3
+dataset/gtzan/
+dataset/images/
+
+# Modelos pesados (opcional, si superan los 100MB de GitHub)
+*.h5
+*.keras
+*.tflite
+
+# Archivos de sistema y VS Code
+.vscode/
+.DS_Store
