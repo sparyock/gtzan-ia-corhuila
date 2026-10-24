@@ -7,8 +7,8 @@ import numpy as np
 import os
 
 BATCH_SIZE = 32
-IMG_SIZE = (128, 128)  # Reducimos dimensión para entrenamiento ultrarrápido y liviano
-EPOCHS = 15
+IMG_SIZE = (128, 128)
+EPOCHS = 20
 CLASES = ['blues', 'classical', 'country', 'disco', 'hiphop', 
           'jazz', 'metal', 'pop', 'reggae', 'rock']
 
@@ -20,7 +20,8 @@ def cargar_datos():
         label_mode='int',
         color_mode='grayscale',
         batch_size=BATCH_SIZE,
-        image_size=IMG_SIZE
+        image_size=IMG_SIZE,
+        shuffle=True
     )
     val_ds = tf.keras.utils.image_dataset_from_directory(
         'dataset/procesado/val',
@@ -28,37 +29,40 @@ def cargar_datos():
         label_mode='int',
         color_mode='grayscale',
         batch_size=BATCH_SIZE,
-        image_size=IMG_SIZE
+        image_size=IMG_SIZE,
+        shuffle=False
     )
-    AUTOTUNE = tf.data.AUTOTUNE
-    return train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE), val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    return train_ds, val_ds
 
 def construir_modelo():
     model = models.Sequential([
-        # Normalización de píxeles (0 a 255 -> 0.0 a 1.0)
-        layers.Rescaling(1./255, input_shape=(IMG_SIZE[0], IMG_SIZE[1], 1)),
+        # Capa explícita de entrada
+        layers.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 1)),
         
+        # Normalización
+        layers.Rescaling(1./255),
+        
+        # Bloque 1
         layers.Conv2D(32, (3, 3), activation='relu'),
         layers.MaxPooling2D((2, 2)),
-        layers.BatchNormalization(),
         
+        # Bloque 2
         layers.Conv2D(64, (3, 3), activation='relu'),
         layers.MaxPooling2D((2, 2)),
-        layers.BatchNormalization(),
         
+        # Bloque 3
         layers.Conv2D(128, (3, 3), activation='relu'),
         layers.MaxPooling2D((2, 2)),
-        layers.BatchNormalization(),
-        layers.Dropout(0.3),
+        layers.Dropout(0.25),
         
-        layers.GlobalAveragePooling2D(), # Reduce parámetros drásticamente
+        # Capas Densas
+        layers.Flatten(),
         layers.Dense(64, activation='relu'),
-        layers.Dropout(0.4),
+        layers.Dropout(0.5),
         layers.Dense(10, activation='softmax')
     ])
     
-    # LR ajustado para convergencia estable
-    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.0005)
     model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -109,8 +113,8 @@ if __name__ == "__main__":
     historial = modelo.fit(train_ds, validation_data=val_ds, epochs=EPOCHS)
     
     os.makedirs('web_app/model', exist_ok=True)
-    modelo.save('web_app/model/modelo_final.h5')
-    print("\nModelo guardado en web_app/model/modelo_final.h5")
+    modelo.save('web_app/model/modelo_final.keras')
+    print("\nModelo guardado en web_app/model/modelo_final.keras")
     
     print("\nGenerando gráficas de evaluación...")
     generar_graficas(historial, modelo, val_ds)
