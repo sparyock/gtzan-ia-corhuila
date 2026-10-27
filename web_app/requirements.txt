@@ -1,0 +1,9 @@
+Flask
+gunicorn
+tensorflow
+librosa
+numpy
+soundfile
+Pillow
+matplotlib
+scikit-learn
