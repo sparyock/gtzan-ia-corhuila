@@ -4,8 +4,8 @@ Proyecto Final para la asignatura de **Inteligencia Artificial** - *Corporación
 
 ## 👥 Integrantes del Equipo
 * **Yeison Andrés Scarpeta Díaz** (Líder de IA / Modelado y Entrenamiento)
-* **Nicolas** (Gestión de Datos, Métricas e Informe APA 7)
-* **Angel** (Desarrollo Web en Flask y Despliegue)
+* **Nicolas Gabrieñ Alvarez Aguirre** (Gestión de Datos, Métricas e Informe APA 7)
+* **Sergio Luis Angel Romero** (Desarrollo Web en Flask y Despliegue)
 
 **Docente:** Ing. José Miguel Llanos Mosquera  
 **Programa:** Ingeniería de Sistemas  
