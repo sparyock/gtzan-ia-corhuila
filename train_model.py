@@ -28,8 +28,8 @@ STATIC_DIR = BASE_DIR / "web_app" / "static"
 
 BATCH_SIZE = 32
 IMG_SIZE = (128, 128)
-EPOCHS = 25
-LEARNING_RATE = 0.0005
+EPOCHS = 35                  # Aumentado a 35 épocas según requerimiento
+LEARNING_RATE = 0.001        # Ajustado a 0.001 según requerimiento
 
 CLASES = [
     "blues",
@@ -79,6 +79,11 @@ def cargar_datasets():
         json.dump(mapping, f, indent=4, ensure_ascii=False)
     print(f"-> Mapeo de clases exportado en: {CLASSES_JSON_PATH}")
 
+    # Optimización de carga en memoria
+    AUTOTUNE = tf.data.AUTOTUNE
+    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
     return train_ds, val_ds
 
 
@@ -86,25 +91,41 @@ def cargar_datasets():
 # 3. ARQUITECTURA CNN ROBUSTA Y COMPATIBLE
 # ------------------------------------------------------------------------------
 def construir_cnn():
-    print("-> Diseñando arquitectura CNN...")
+    print("-> Diseñando arquitectura CNN con Data Augmentation...")
+
+    # Capa de aumento de datos para multiplicar el volumen visualmente
+    data_augmentation = tf.keras.Sequential([
+        layers.RandomTranslation(height_factor=0.08, width_factor=0.08),
+        layers.RandomContrast(factor=0.15)
+    ])
 
     model = models.Sequential(
         [
             layers.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 1)),
+            data_augmentation,
             layers.Rescaling(1.0 / 255.0),  # Normalización de píxeles
+            
             # Bloque Convolucional 1
             layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
             layers.MaxPooling2D((2, 2)),
+            
             # Bloque Convolucional 2
             layers.Conv2D(64, (3, 3), activation="relu", padding="same"),
             layers.MaxPooling2D((2, 2)),
+            
             # Bloque Convolucional 3
             layers.Conv2D(128, (3, 3), activation="relu", padding="same"),
             layers.MaxPooling2D((2, 2)),
+            layers.Dropout(0.25),
+            
+            # Bloque Convolucional 4 (Extra para mayor volumen de datos)
+            layers.Conv2D(256, (3, 3), activation="relu", padding="same"),
+            layers.MaxPooling2D((2, 2)),
             layers.Dropout(0.3),
+            
             # Capas Densas y Clasificación
             layers.Flatten(),
-            layers.Dense(64, activation="relu"),
+            layers.Dense(128, activation="relu"),
             layers.Dropout(0.4),
             layers.Dense(len(CLASES), activation="softmax"),
         ]
