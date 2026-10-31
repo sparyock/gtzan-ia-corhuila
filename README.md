@@ -1,71 +1,48 @@
-# 🎵 GTZAN Music Genre Classification - CNN (Corhuila 2026-2)
+# Clasificación de Géneros Musicales con CNN (GTZAN) - Proyecto IA
 
-Proyecto Final para la asignatura de **Inteligencia Artificial** - *Corporación Universitaria del Huila (CORHUILA)*.
+Este repositorio contiene el proyecto final para la asignatura de Inteligencia Artificial de la Corporación Universitaria del Huila (CORHUILA). Consiste en un sistema basado en Redes Neuronales Convolucionales (CNN) capaz de clasificar audios en 9 géneros musicales diferentes a partir de espectrogramas Mel de 3 segundos.
 
-## 👥 Integrantes del Equipo
-* **Yeison Andrés Scarpeta Díaz** (Líder de IA / Modelado y Entrenamiento)
-* **Nicolas Gabriel Alvarez Aguirre** (Gestión de Datos, Métricas e Informe APA 7)
-* **Sergio Luis Angel Romero** (Desarrollo Web en Flask y Despliegue)
+## 👥 Equipo de Trabajo
+* Yeison Andrés Scarpeta Díaz (Jason) - *Entrenamiento del modelo IA y procesamiento de datos*
+* Angel - *Desarrollo e integración de la Web App (Flask)*
+* Nicolás - *Documentación, reportes APA y análisis de resultados*
 
-**Docente:** Ing. José Miguel Llanos Mosquera  
-**Programa:** Ingeniería de Sistemas  
-**Fecha de Sustentación:** Martes, 10 de Noviembre de 2026 (6:00 AM - C5-508)  
+## 📊 Dataset y Clases
+Se utilizó el dataset **"3-Second Melspectrograms for GTZAN"** extraído de Kaggle, el cual contiene 9,000 imágenes de espectrogramas generadas con Librosa. 
 
----
+El modelo fue entrenado para clasificar los siguientes **9 géneros musicales**:
+1. Blues
+2. Classical
+3. Country
+4. Disco
+5. Hiphop
+6. Metal
+7. Pop
+8. Reggae
+9. Rock
 
-## 📌 Descripción del Proyecto
-El objetivo principal de este proyecto es clasificar automáticamente **10 géneros musicales** a partir de archivos de audio, abordándolo desde una perspectiva de **Visión por Computadora**. 
+*(Nota técnica: El género "Jazz" fue excluido en esta versión del modelo según la disponibilidad del dataset).*
 
-Los archivos de audio del dataset GTZAN se transforman en **Espectrogramas Mel** (imágenes 2D de frecuencia/tiempo) que son procesados mediante una **Red Neuronal Convolucional (CNN)** implementada en TensorFlow/Keras.
+## 🧠 Arquitectura y Rendimiento del Modelo
+El entrenamiento pesado se migró de CPU local a **Google Colab (Aceleración por GPU T4)** para procesar las 9,000 imágenes de manera eficiente.
 
-### 🎷 Géneros a Clasificar (10 Clases)
-`Blues`, `Classical`, `Country`, `Disco`, `Hiphop`, `Jazz`, `Metal`, `Pop`, `Reggae`, `Rock`.
+* **Arquitectura:** Red Neuronal Convolucional (CNN) con 4 bloques convolucionales, capas de MaxPooling, Dropout para evitar sobreajuste y Data Augmentation integrado.
+* **Épocas de entrenamiento:** 35 épocas.
+* **Precisión final (Accuracy):** **75.00%** (Superando el umbral exigido del 75%).
+* **Artefacto final:** `modelo_final.keras` (Guardado en `web_app/model/`).
 
----
-
-## 🏗️ Arquitectura de la Red Neuronal (CNN)
-La red está optimizada para evitar el sobreajuste (*overfitting*) y procesa espectrogramas de tamaño **128x128 píxeles en escala de grises**:
-
-1. **Capa de Normalización (`Rescaling`):** Escala los valores de los píxeles de `[0, 255]` a `[0.0, 1.0]`.
-2. **Bloques Convolucionales:**
-   * **Bloque 1:** Conv2D (32 filtros, 3x3, ReLU) + MaxPooling2D (2x2)
-   * **Bloque 2:** Conv2D (64 filtros, 3x3, ReLU) + MaxPooling2D (2x2)
-   * **Bloque 3:** Conv2D (128 filtros, 3x3, ReLU) + MaxPooling2D (2x2) + Dropout (0.3)
-3. **Clasificación Densa:**
-   * Flatten
-   * Dense (64 neuronas, ReLU) + Dropout (0.4)
-   * Dense (10 neuronas, Softmax)
-
----
-
-## 📊 Resultados y Evaluación Técnica
-El modelo alcanzó un rendimiento muy estable en el conjunto de validación sin sobreajuste:
-* **Accuracy de Validación:** `~62%`
-* **Loss de Validación:** `~1.18`
-
-Las evidencias gráficas requeridas se generan automáticamente en `web_app/static/`:
-* `training_plot.png`: Curvas de aprendizaje (Precisión y Pérdida).
-* `confusion_matrix.png`: Matriz de Confusión por género musical.
-* `classification_report.txt`: Reporte métrico detallado (Precision, Recall, F1-Score).
-
----
-
-## 📂 Estructura del Repositorio
-
+## 📁 Estructura del Proyecto
 ```text
 gtzan-ia-corhuila/
 │
-├── dataset/
-│   ├── images_original/   # Espectrogramas base de Kaggle
-│   └── procesado/         # Partición automática (Train 80% / Val 20%)
+├── dataset/                 # (Ignorado en Git) 9,000 Espectrogramas de entrenamiento y validación.
+├── web_app/                 # Directorio principal de la aplicación web.
+│   ├── model/               # Contiene el modelo IA (modelo_final.keras) y clases.json.
+│   ├── static/              # Gráficas de rendimiento (matriz de confusión, curvas) y reporte txt.
+│   ├── templates/           # Vistas HTML de la aplicación web.
+│   └── app.py               # Script principal de Flask.
 │
-├── web_app/
-│   ├── model/
-│   │   ├── modelo_final.keras  # Modelo CNN entrenado
-│   │   └── clases.json         # Mapeo de índices a géneros musicales
-│   └── static/                 # Gráficas de evaluación técnica (PNG)
-│
-├── env/                   # Entorno virtual de Python
-├── split_data.py          # Script de separación de datos (evita Data Leakage)
-├── train_model.py         # Script de arquitectura, entrenamiento y evaluación
-└── README.md              # Documentación oficial del repositorio
+├── train_model.py           # Script principal de entrenamiento de la CNN.
+├── split_data.py            # Script auxiliar para partición de datos.
+├── .gitignore               # Exclusión de archivos pesados y entornos virtuales.
+└── README.md                # Documentación del proyecto.
