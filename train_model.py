@@ -37,7 +37,6 @@ CLASES = [
     "country",
     "disco",
     "hiphop",
-    "jazz",
     "metal",
     "pop",
     "reggae",

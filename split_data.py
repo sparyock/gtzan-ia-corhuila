@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 ORIGEN = 'dataset/images_original'
 DESTINO = 'dataset/procesado'
 generos = ['blues', 'classical', 'country', 'disco', 'hiphop', 
-           'jazz', 'metal', 'pop', 'reggae', 'rock']
+            'metal', 'pop', 'reggae', 'rock']
 
 # Crear carpetas de salida
 for particion in ['train', 'val']:
