@@ -3,7 +3,7 @@
 Este repositorio contiene el proyecto final para la asignatura de Inteligencia Artificial de la Corporación Universitaria del Huila (CORHUILA). Consiste en un sistema basado en Redes Neuronales Convolucionales (CNN) capaz de clasificar audios en 9 géneros musicales diferentes a partir de espectrogramas Mel de 3 segundos.
 
 ## 👥 Equipo de Trabajo
-* Yeison Andrés Scarpeta Díaz (Jason) - *Entrenamiento del modelo IA y procesamiento de datos*
+* Yeison Andrés Scarpeta Díaz  - *Entrenamiento del modelo IA y procesamiento de datos*
 * Angel - *Desarrollo e integración de la Web App (Flask)*
 * Nicolás - *Documentación, reportes APA y análisis de resultados*
 
