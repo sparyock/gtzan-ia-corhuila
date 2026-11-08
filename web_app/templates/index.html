@@ -446,6 +446,13 @@
                 </div>
                 {% endif %}
 
+                <div style="margin-top: 20px;">
+                    <a href="/resultados" class="btn-secondary">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        Ver resultados y métricas del modelo
+                    </a>
+                </div>
+
                 {% else %}
                 <div class="results-grid">
                     {% if spec_image %}
@@ -497,6 +504,10 @@
                     <a href="/" class="btn-secondary">
                         <i class="bi bi-arrow-left-circle"></i>
                         Clasificar otro archivo de audio
+                    </a>
+                    <a href="/resultados" class="btn-secondary">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        Ver resultados del modelo
                     </a>
                 </div>
                 {% endif %}

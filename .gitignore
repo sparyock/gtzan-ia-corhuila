@@ -17,3 +17,4 @@ dataset/images/
 # Archivos de sistema y VS Code
 .vscode/
 .DS_Store
+web_app/static/specs/*.png

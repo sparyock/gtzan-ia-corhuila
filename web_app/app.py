@@ -19,6 +19,8 @@ UPLOAD_FOLDER = BASE_DIR / 'uploads'
 STATIC_SPECS = BASE_DIR / 'static' / 'specs'
 MODEL_PATH = BASE_DIR / 'model' / 'modelo_final.keras'
 CLASSES_PATH = BASE_DIR / 'model' / 'clases.json'
+EVALUATION_PATH = BASE_DIR / 'static' / 'evaluation_results.json'
+HISTORY_PATH = BASE_DIR / 'static' / 'training_history.json'
 
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 STATIC_SPECS.mkdir(parents=True, exist_ok=True)
@@ -35,10 +37,18 @@ CLASES = [clases_dict[str(i)] for i in range(len(clases_dict))]
 print(f"Clases cargadas: {CLASES}")
 
 IMG_SIZE = (128, 128)
+DURACION_AUDIO = 3.0
+
+def cargar_json(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
 def audio_to_spectrogram(audio_path):
     """Convierte archivo de audio WAV a espectrograma Mel 128x128 en escala de grises"""
-    y, sr = librosa.load(audio_path, duration=30)
+    y, sr = librosa.load(audio_path, duration=DURACION_AUDIO)
 
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, fmax=8000)
     S_dB = librosa.power_to_db(S, ref=np.max)
@@ -67,6 +77,27 @@ def audio_to_spectrogram(audio_path):
 def index():
     return render_template('index.html')
 
+@app.route('/resultados')
+def resultados():
+    evaluacion = cargar_json(EVALUATION_PATH)
+    historial = cargar_json(HISTORY_PATH)
+
+    reporte_txt = ''
+    reporte_path = BASE_DIR / 'static' / 'classification_report.txt'
+    if reporte_path.exists():
+        reporte_txt = reporte_path.read_text(encoding='utf-8')
+
+    return render_template(
+        'resultados.html',
+        evaluacion=evaluacion,
+        historial=historial,
+        reporte_txt=reporte_txt,
+    )
+
+@app.route('/health')
+def health():
+    return {'status': 'ok', 'modelo': MODEL_PATH.name, 'clases': CLASES}
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -80,7 +111,7 @@ def predict():
         if not file.filename.lower().endswith('.wav'):
             return render_template('index.html', error='Solo se permiten archivos .WAV')
 
-        filename = file.filename
+        filename = f'{uuid.uuid4().hex}.wav'
         filepath = UPLOAD_FOLDER / filename
         file.save(str(filepath))
 

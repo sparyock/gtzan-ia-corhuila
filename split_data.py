@@ -1,30 +1,40 @@
 import os
 import shutil
+from pathlib import Path
+
 from sklearn.model_selection import train_test_split
 
-ORIGEN = 'dataset/images_original'
-DESTINO = 'dataset/procesado'
-generos = ['blues', 'classical', 'country', 'disco', 'hiphop', 
-            'metal', 'pop', 'reggae', 'rock']
+BASE_DIR = Path(__file__).resolve().parent
+ORIGEN = BASE_DIR / 'dataset' / 'images_original'
+DESTINO = BASE_DIR / 'dataset' / 'procesado'
+EXTENSIONES = ('.png', '.jpg', '.jpeg')
+generos = ['blues', 'classical', 'country', 'disco', 'hiphop',
+           'metal', 'pop', 'reggae', 'rock']
 
 # Crear carpetas de salida
 for particion in ['train', 'val']:
     for g in generos:
-        os.makedirs(os.path.join(DESTINO, particion, g), exist_ok=True)
+        (DESTINO / particion / g).mkdir(parents=True, exist_ok=True)
 
 print("Organizando imágenes en Train (80%) y Val (20%)...")
 for g in generos:
-    ruta_genero = os.path.join(ORIGEN, g)
-    if not os.path.exists(ruta_genero):
+    ruta_genero = ORIGEN / g
+    if not ruta_genero.exists():
         print(f"Advertencia: No se encontró la carpeta {ruta_genero}")
         continue
-        
-    imagenes = [f for f in os.listdir(ruta_genero) if f.endswith('.png')]
+
+    imagenes = [f.name for f in ruta_genero.iterdir()
+                if f.is_file() and f.suffix.lower() in EXTENSIONES]
+    if not imagenes:
+        print(f"Advertencia: No hay imágenes en {ruta_genero}")
+        continue
+
     train_imgs, val_imgs = train_test_split(imagenes, test_size=0.20, random_state=42)
-    
+
     for img in train_imgs:
-        shutil.copy(os.path.join(ruta_genero, img), os.path.join(DESTINO, 'train', g, img))
+        shutil.copy(ruta_genero / img, DESTINO / 'train' / g / img)
     for img in val_imgs:
-        shutil.copy(os.path.join(ruta_genero, img), os.path.join(DESTINO, 'val', g, img))
+        shutil.copy(ruta_genero / img, DESTINO / 'val' / g / img)
+    print(f"  {g}: {len(train_imgs)} train / {len(val_imgs)} val")
 
 print("¡Listo! Las imágenes se organizaron en dataset/procesado/")

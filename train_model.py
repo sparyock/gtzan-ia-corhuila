@@ -72,8 +72,14 @@ def cargar_datasets():
     )
 
     # Exportar archivo JSON con mapeo de clases para Flask
+    class_names = list(train_ds.class_names)
+    if class_names != CLASES:
+        print(f"ADVERTENCIA: clases detectadas {class_names} != CLASES {CLASES}")
+    if list(val_ds.class_names) != class_names:
+        print("ADVERTENCIA: el orden de clases de validación no coincide con entrenamiento")
+
     CLASSES_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
-    mapping = {i: clase for i, clase in enumerate(CLASES)}
+    mapping = {i: clase for i, clase in enumerate(class_names)}
     with open(CLASSES_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(mapping, f, indent=4, ensure_ascii=False)
     print(f"-> Mapeo de clases exportado en: {CLASSES_JSON_PATH}")
@@ -147,13 +153,57 @@ def generar_reporte_grafico(history, model, val_ds):
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
     print("-> Generando gráficas de evaluación técnica...")
 
-    # 1. Curvas de Aprendizaje (Accuracy y Loss)
+    # 0. Persistir historial numérico para la sección de resultados
     acc = history.history["accuracy"]
     val_acc = history.history["val_accuracy"]
     loss = history.history["loss"]
     val_loss = history.history["val_loss"]
     epochs_range = range(1, len(acc) + 1)
 
+    history_path = STATIC_DIR / "training_history.json"
+    with open(history_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "epochs": EPOCHS,
+                "learning_rate": LEARNING_RATE,
+                "batch_size": BATCH_SIZE,
+                "accuracy": [float(v) for v in acc],
+                "val_accuracy": [float(v) for v in val_acc],
+                "loss": [float(v) for v in loss],
+                "val_loss": [float(v) for v in val_loss],
+            },
+            f,
+            indent=4,
+        )
+    print(f"   [+] Historial de entrenamiento guardado en: {history_path}")
+
+    # 1a. Curva de Accuracy
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs_range, acc, "b-o", label="Precisión Entrenamiento")
+    plt.plot(epochs_range, val_acc, "r-s", label="Precisión Validación")
+    plt.title("Evolución de la Precisión (Accuracy)")
+    plt.xlabel("Épocas")
+    plt.ylabel("Precisión")
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    plt.savefig(STATIC_DIR / "accuracy_curve.png", dpi=300)
+    plt.close()
+
+    # 1b. Curva de Loss
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs_range, loss, "b-o", label="Pérdida Entrenamiento")
+    plt.plot(epochs_range, val_loss, "r-s", label="Pérdida Validación")
+    plt.title("Evolución de la Pérdida (Loss)")
+    plt.xlabel("Épocas")
+    plt.ylabel("Pérdida")
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.legend(loc="upper right")
+    plt.tight_layout()
+    plt.savefig(STATIC_DIR / "loss_curve.png", dpi=300)
+    plt.close()
+
+    # 1c. Curvas combinadas (compatibilidad)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
     ax1.plot(epochs_range, acc, "b-o", label="Precisión Entrenamiento")
