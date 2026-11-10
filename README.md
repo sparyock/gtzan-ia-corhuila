@@ -1,16 +1,22 @@
 # Clasificación de Géneros Musicales con CNN (GTZAN) - Proyecto IA
 
-Este repositorio contiene el proyecto final para la asignatura de Inteligencia Artificial de la Corporación Universitaria del Huila (CORHUILA). Consiste en un sistema basado en Redes Neuronales Convolucionales (CNN) capaz de clasificar audios en 9 géneros musicales diferentes a partir de espectrogramas Mel de 3 segundos.
+Este repositorio contiene el proyecto final para la asignatura de **Inteligencia Artificial** de la Corporación Universitaria del Huila (CORHUILA). Consiste en un sistema basado en Redes Neuronales Convolucionales (CNN) capaz de clasificar audios en **9 géneros musicales diferentes** a partir de espectrogramas Mel de 3 segundos.
 
 ## 👥 Equipo de Trabajo
-* Yeison Andrés Scarpeta Díaz  - *Entrenamiento del modelo IA y procesamiento de datos*
-* Angel - *Desarrollo e integración de la Web App (Flask)*
-* Nicolás - *Documentación, reportes APA y análisis de resultados*
+
+- **Yeison Andrés Scarpeta Díaz** – *Entrenamiento del modelo IA y procesamiento de datos.*
+- **Angel** – *Desarrollo e integración de la Web App (Flask).*
+- **Nicolás** – *Documentación, reportes APA y análisis de resultados.*
 
 ## 📊 Dataset y Clases
-Se utilizó el dataset **"3-Second Melspectrograms for GTZAN"** extraído de Kaggle, el cual contiene 9,000 imágenes de espectrogramas generadas con Librosa. 
+
+Se utilizó el dataset **3-Second Melspectrograms for GTZAN**, extraído de Kaggle, del cual se procesaron **8.100 imágenes útiles**, distribuidas de la siguiente manera:
+
+- **7.200 imágenes** para entrenamiento.
+- **900 imágenes** para validación.
 
 El modelo fue entrenado para clasificar los siguientes **9 géneros musicales**:
+
 1. Blues
 2. Classical
 3. Country
@@ -21,98 +27,142 @@ El modelo fue entrenado para clasificar los siguientes **9 géneros musicales**:
 8. Reggae
 9. Rock
 
-*(Nota técnica: El género "Jazz" fue excluido en esta versión del modelo según la disponibilidad del dataset).*
+> **Nota técnica:** El género Jazz fue excluido en esta versión del modelo según la disponibilidad del dataset.
 
 ## 🧠 Arquitectura y Rendimiento del Modelo
-El entrenamiento pesado se migró de CPU local a **Google Colab (Aceleración por GPU T4)** para procesar las 9,000 imágenes de manera eficiente.
 
-* **Arquitectura:** Red Neuronal Convolucional (CNN) con 4 bloques convolucionales, capas de MaxPooling, Dropout para evitar sobreajuste y Data Augmentation integrado.
-* **Épocas de entrenamiento:** **35 épocas**.
-* **Learning Rate:** **0.001** (optimizador Adam).
-* **Batch Size:** 32.
-* **Entrada:** espectrogramas Mel de 128x128 px en escala de grises.
-* **Salida:** 9 géneros musicales (softmax).
-* **Artefacto final:** `modelo_final.keras` (Guardado en `web_app/model/`).
+El entrenamiento se migró de CPU local a **Google Colab con aceleración por GPU T4**, permitiendo procesar las 8.100 imágenes de manera eficiente.
+
+- **Arquitectura:** Red Neuronal Convolucional (CNN) con 4 bloques convolucionales, capas MaxPooling, Dropout y Data Augmentation.
+- **Épocas de entrenamiento:** 35.
+- **Learning Rate:** 0.001.
+- **Optimizador:** Adam.
+- **Batch Size:** 32.
+- **Entrada:** Espectrogramas Mel de 128 × 128 píxeles en escala de grises.
+- **Salida:** 9 clases mediante función Softmax.
+- **Modelo final:** `modelo_final.keras`.
+- **Ubicación:** `web_app/model/`.
 
 ## ✅ Resultados de la Última Evaluación
-Evaluación reproducible del modelo guardado sobre el conjunto de validación (900 imágenes, 100 por género):
 
-| Métrica | Valor |
-| --- | --- |
-| Accuracy | **75.00%** |
+Evaluación reproducible del modelo guardado sobre el conjunto de validación de 900 imágenes (100 por género).
+
+| Métrica | Resultado |
+|---|---:|
+| Accuracy | **75.00 %** |
 | Loss | **0.7499** |
 | Precision (macro) | 0.761 |
 | Recall (macro) | 0.750 |
 | F1-score (macro) | 0.749 |
 | Épocas | 35 |
 | Learning Rate | 0.001 |
-| Umbral exigido | 75% |
-| ¿Cumple? | **Sí** |
+| Umbral exigido | 75 % |
+| Cumplimiento | **Sí** |
 
 Los resultados completos se guardan automáticamente en:
 
-* `web_app/static/evaluation_results.json` (métricas, matriz de confusión y detalle por clase).
-* `web_app/static/classification_report.txt` (reporte de clasificación).
-* `web_app/static/training_plot.png` (curvas de Accuracy y Loss).
-* `web_app/static/confusion_matrix.png` (matriz de confusión).
-* `web_app/static/per_class_metrics.png` (precision/recall/F1 por género).
+- `web_app/static/evaluation_results.json` – Métricas, matriz de confusión y detalle por clase.
+- `web_app/static/classification_report.txt` – Reporte de clasificación.
+- `web_app/static/training_plot.png` – Curvas de Accuracy y Loss.
+- `web_app/static/confusion_matrix.png` – Matriz de confusión.
+- `web_app/static/per_class_metrics.png` – Precision, Recall y F1 por género.
 
-Para reproducir la evaluación:
+**Para reproducir la evaluación:**
 
 ```bash
 python evaluate_model.py
 ```
 
-La aplicación web muestra todo en la ruta **`/resultados`**.
+La aplicación web permite consultar todos los resultados desde la ruta `/resultados`.
 
-> Nota: si una nueva evaluación queda por debajo del 75%, el script lo indica y se debe
-> ajustar `LEARNING_RATE = 0.001` en `train_model.py` y reentrenar.
+> **Nota:** Si una nueva evaluación queda por debajo del 75 %, se debe revisar el parámetro `LEARNING_RATE = 0.001` en `train_model.py` y realizar un nuevo entrenamiento.
 
 ## 🚀 Ejecución Local
+
+### 1. Instalar dependencias
+
 ```bash
-# 1. Instalar dependencias
 pip install -r web_app/requirements.txt
+```
 
-# 2. Entrenar (opcional, pesado en CPU)
+### 2. Entrenar el modelo (opcional)
+
+```bash
 python train_model.py
+```
 
-# 3. Evaluar el modelo ya entrenado
+> El entrenamiento puede requerir recursos computacionales elevados si se ejecuta en CPU.
+
+### 3. Evaluar el modelo entrenado
+
+```bash
 python evaluate_model.py
+```
 
-# 4. Levantar la aplicación web
+### 4. Ejecutar la aplicación web
+
+```bash
 python web_app/app.py
 ```
 
-Abrir `http://localhost:5000`. Rutas disponibles:
+Abrir en el navegador:
 
-* `/` → clasificador de audio `.wav`.
-* `/resultados` → métricas y gráficas del modelo.
-* `/health` → estado del servicio en formato JSON.
+`http://localhost:5000`
+
+### Rutas disponibles
+
+| Ruta | Funcionalidad |
+|---|---|
+| `/` | Clasificador de archivos de audio `.wav`. |
+| `/resultados` | Visualización de métricas y gráficas del modelo. |
+| `/health` | Estado del servicio en formato JSON. |
 
 ## ☁️ Despliegue en Render
-El archivo `Procfile` de la raíz define el comando de producción:
+
+El archivo `Procfile`, ubicado en la raíz del proyecto, define el comando de ejecución en producción:
 
 ```text
 web: gunicorn web_app.app:app --bind 0.0.0.0:$PORT --timeout 180 --workers 1
 ```
 
-Pasos: subir el repositorio a GitHub, crear un **Web Service** en Render, conectar el repo,
-usar `pip install -r web_app/requirements.txt` como build command y el `Procfile` como start command.
+### Pasos para el despliegue
+
+1. Subir el repositorio a GitHub.
+2. Crear un **Web Service** en Render.
+3. Conectar el repositorio de GitHub.
+4. Configurar el Build Command:
+
+```bash
+pip install -r web_app/requirements.txt
+```
+
+5. Utilizar el comando definido en el `Procfile` para iniciar la aplicación.
+
+> **Nota de despliegue:** Si el entorno nativo de Render presenta conflictos con Librosa al procesar archivos de audio, el proyecto está preparado para utilizar Docker con una imagen de Python que incluya `libsndfile1`.
 
 ## 📁 Estructura del Proyecto
+
 ```text
 gtzan-ia-corhuila/
 │
-├── dataset/                 # (Ignorado en Git) 9,000 Espectrogramas de entrenamiento y validación.
-├── web_app/                 # Directorio principal de la aplicación web.
-│   ├── model/               # Contiene el modelo IA (modelo_final.keras) y clases.json.
-│   ├── static/              # Gráficas de rendimiento (matriz de confusión, curvas) y reporte txt.
-│   ├── templates/           # Vistas HTML de la aplicación web (index.html y resultados.html).
-│   └── app.py               # Script principal de Flask.
+├── dataset/                 # 8.100 espectrogramas (ignorado en Git).
 │
-├── train_model.py           # Script principal de entrenamiento de la CNN.
-├── evaluate_model.py        # Evaluación reproducible del modelo y generación de métricas.
-├── split_data.py            # Script auxiliar para partición de datos.
-├── Procfile                 # Comando de arranque para Render/Gunicorn.
-├── .gitignore               # Exclusión de archivos pesados y entornos virtuales.
+├── web_app/                 # Aplicación web principal.
+│   ├── model/               # Modelo IA y archivo clases.json.
+│   ├── static/              # Gráficas, métricas y reportes.
+│   ├── templates/            # Plantillas HTML de la aplicación.
+│   └── app.py               # Aplicación principal Flask.
+│
+├── train_model.py           # Entrenamiento de la CNN.
+├── evaluate_model.py        # Evaluación y generación de métricas.
+├── split_data.py            # Partición del conjunto de datos.
+├── Procfile                 # Configuración de Render/Gunicorn.
+├── .gitignore               # Archivos excluidos del repositorio.
 └── README.md                # Documentación del proyecto.
+```
+
+---
+
+**Proyecto académico desarrollado para la asignatura de Inteligencia Artificial.**
+
+**Corporación Universitaria del Huila (CORHUILA).**
