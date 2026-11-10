@@ -117,28 +117,8 @@ Abrir en el navegador:
 | `/resultados` | Visualización de métricas y gráficas del modelo. |
 | `/health` | Estado del servicio en formato JSON. |
 
-## ☁️ Despliegue en Render
 
-El archivo `Procfile`, ubicado en la raíz del proyecto, define el comando de ejecución en producción:
 
-```text
-web: gunicorn web_app.app:app --bind 0.0.0.0:$PORT --timeout 180 --workers 1
-```
-
-### Pasos para el despliegue
-
-1. Subir el repositorio a GitHub.
-2. Crear un **Web Service** en Render.
-3. Conectar el repositorio de GitHub.
-4. Configurar el Build Command:
-
-```bash
-pip install -r web_app/requirements.txt
-```
-
-5. Utilizar el comando definido en el `Procfile` para iniciar la aplicación.
-
-> **Nota de despliegue:** Si el entorno nativo de Render presenta conflictos con Librosa al procesar archivos de audio, el proyecto está preparado para utilizar Docker con una imagen de Python que incluya `libsndfile1`.
 
 ## 📁 Estructura del Proyecto
 
